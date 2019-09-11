@@ -1,0 +1,20 @@
+{
+  "name": "xd-file",
+  "version": "0.1.1",
+  "description": "Methods to make is easier to manipulate an Adobe XD file",
+  "main": "index.js",
+  "types": "./index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mathieu Dutour",
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^1.14.3"
+  },
+  "dependencies": {
+    "jszip": "^3.1.5",
+    "seedrandom": "^2.4.4",
+    "xml-js": "^1.6.11"
+  }
+}
