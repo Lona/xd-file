@@ -82,41 +82,90 @@ module.exports.writeXDFile = (
   filePath,
 ) => {
   const zip = new jszip()
+
+  // mimetype shouldn't be compressed
+  zip.file('mimetype', 'application/vnd.adobe.sparkler.project+dcxucf', {
+    createFolders: false,
+    binary: true,
+    compression: 'STORE',
+  })
+
+  zip.file('manifest', JSON.stringify(document), {
+    createFolders: false,
+    binary: false,
+    compression: 'DEFLATE',
+    compressionOptions: {
+      level: 1,
+    },
+  })
+  zip.file('META-INF/metadata.xml', xmljs.js2xml(metadata, { compact: true }), {
+    createFolders: false,
+    binary: true,
+    compression: 'STORE',
+  })
+
   artboards.forEach(a =>
     zip.file(
       `artwork/artboard-${a.children[0].id}/graphics/graphicContent.agc`,
       JSON.stringify(a),
-      { createFolders: false },
+      {
+        createFolders: false,
+        binary: false,
+        compression: 'DEFLATE',
+        compressionOptions: {
+          level: 1,
+        },
+      },
     ),
   )
 
-  zip.file('manifest', JSON.stringify(document), { createFolders: false })
-  zip.file('interactions/interactions.json', JSON.stringify(interactions), { createFolders: false })
-  zip.file('META-INF/metadata.xml', xmljs.js2xml(metadata, { compact: true }), {
-    createFolders: false,
-  })
   zip.file('artwork/pasteboard/graphics/graphicContent.agc', JSON.stringify(pasteboard), {
     createFolders: false,
+    binary: false,
+    compression: 'DEFLATE',
+    compressionOptions: {
+      level: 1,
+    },
   })
-  zip.file('resources/graphics/graphicContent.agc', JSON.stringify(resources), {
+  zip.file('interactions/interactions.json', JSON.stringify(interactions), {
     createFolders: false,
+    binary: false,
+    compression: 'DEFLATE',
+    compressionOptions: {
+      level: 1,
+    },
   })
-  zip.file('mimetype', 'application/vnd.adobe.sparkler.project+dcxucf', { createFolders: false })
+  zip.file('preview.png', fs.readFileSync(path.join(__dirname, './json/preview.png')), {
+    createFolders: false,
+    compression: 'STORE',
+  })
   zip.file(
     'renditions/image-512-512.png',
     fs.readFileSync(path.join(__dirname, './json/image-512-512.png')),
-    { createFolders: false },
+    { createFolders: false, compression: 'STORE' },
   )
-  zip.file('preview.png', fs.readFileSync(path.join(__dirname, './json/preview.png')), {
+  zip.file('resources/graphics/graphicContent.agc', JSON.stringify(resources), {
     createFolders: false,
+    binary: false,
+    compression: 'DEFLATE',
+    compressionOptions: {
+      level: 1,
+    },
   })
   zip.file('thumbnail.png', fs.readFileSync(path.join(__dirname, './json/thumbnail.png')), {
     createFolders: false,
+    compression: 'DEFLATE',
+    compressionOptions: {
+      level: 1,
+    },
   })
 
   return new Promise((resolve, reject) => {
     zip
-      .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
+      .generateNodeStream({
+        type: 'nodebuffer',
+        streamFiles: false,
+      })
       .pipe(fs.createWriteStream(filePath))
       .on('finish', () => {
         // JSZip generates a readable stream with a "end" event,
